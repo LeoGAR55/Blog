@@ -5,13 +5,14 @@ import bcrypt from "bcrypt"; //  hashear y verificar contraseñas
 import jwt from "jsonwebtoken"; //  generar y verificar tokens jsonwebtoken
 
 // PUNTO DE ENTRADA DEL SERVIDOR
-// NEXT CORRE EN 3000, EXPRESS EN 5000
+// NEXT CORRE EN , EXPRESS EN 
 // recordar regresar next a https algun dia
 
 dotenv.config(); // cargar las avriables en el.env
 
 const app = express();
-const PORT = process.env.PORT ||  "algo"; 
+const PORT_EXPRESS = process.env.PORT_EXPRESS ||  "algo"; 
+const PORT_NEXT = process.env.PORT_NEXT || "algo";
 
 // CONEXION A MONGOOOOOOOOOOOOOOOOOOOOOOOOOOO
 const MONGO_URL = process.env.MONGO_URL;
@@ -20,7 +21,7 @@ const client = new MongoClient(MONGO_URL); // instancia de mongo client
 let db;
 
 // funcion para conectar a la bd de mongo
-async function connectToDatabase() {
+async function conexionMongo() {
     if (db) return db; // retorna db si hay conexion para usarla
     try {
         await client.connect();
@@ -35,17 +36,17 @@ async function connectToDatabase() {
 
 // obtener la colección de posts
 async function getPostsCollection() {
-    const database = await connectToDatabase();
-    return database.collection("posts");
+    const database = await conexionMongo();
+    return database.collection("posts"); // solo hay 1 hasta el momento
 }
 
-// --- middleware cors manual ---
+// --- middleware cors manual --- codigo adaptado de https://bigcodenerd.org/blog/enable-cors-node-js-without-express/
 // permite solicitudes desde origenes específicos
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   console.log("[DEBUG CORS] Origin recibido:", origin);
 
-  const allowedOrigins = ["http://localhost:3000", "http://192.168.1.71:3000"]; // origenes permitidos
+  const allowedOrigins = ["http://localhost:${PORT_NEXT}", "http://192.168.1.71:${PORT_NEXT}"]; // origenes permitidos
   if (allowedOrigins.includes(origin)) { 
     res.setHeader("Access-Control-Allow-Origin", origin);
     console.log("[DEBUG CORS] Origin permitido:", origin); // IMPORTANTE, antes next corria en https y tuve muchos problemas para cebugear, entonces lo puse en http, pero en produccion deberia estar en https
@@ -100,12 +101,12 @@ function authMiddleware(req, res, next) {
         req.user = decoded;
         next();
     } catch (err) {
-        return res.status(401).json({ message: "Token inválido" });
+        return res.status(401).json({ message: "Token invalido" });
     }
 }
 
 // --- middleware solo admin --- , esto no esta implementado aun
-function adminOnly(req, res, next) {
+function soloAdmin(req, res, next) {
     if (req.user.role !== "admin")
         return res.status(403).json({ message: "No autorizado" });
     next();
@@ -124,7 +125,7 @@ app.post("/login", async (req, res) => {
     }
 
     const validPassword = await bcrypt.compare(password, user.passwordHash); // compara hash
-    console.log("[DEBUG] ¿Password válido?", validPassword);
+    console.log("[DEBUG] Password valido?", validPassword);
 
     if (!validPassword) {
         console.log("[DEBUG] Contraseña incorrecta para usuario:", username);
@@ -150,11 +151,11 @@ app.get("/api/posts", async (req, res) => {
             .sort({ fecha: -1 }) // orden descendente por fecha (date en la bd)
             .toArray();
 
-        console.log("Posts obtenidos:", posts);
+        console.log("posts obtenidos:", posts);
         res.json(posts);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: "Error al obtener los posts" });
+        res.status(500).json({ error: "error al obtener los posts" });
     }
 });
 
@@ -164,18 +165,18 @@ app.get("/api/posts/:slug", async (req, res) => {
         const collection = await getPostsCollection();
         const post = await collection.findOne({ slug: req.params.slug });
 
-        console.log("Post encontrado:", post);
-        if (!post) return res.status(404).json({ error: "Post no encontrado" });
+        console.log("post encontrado:", post);
+        if (!post) return res.status(404).json({ error: "post no encontrado" });
 
         res.json(post);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: "Error al obtener el post" });
+        res.status(500).json({ error: "error al obtener el post" });
     }
 });
 
 // crear un nuevo post (solo admin) ESTO AUN NO ESTA IMPLEMENTADO
-app.post("/api/posts", authMiddleware, adminOnly, async (req, res) => {
+app.post("/api/posts", authMiddleware, soloAdmin, async (req, res) => {
     try {
         const { slug, titulo, fecha, contenido, tags } = req.body;
         const collection = await getPostsCollection();
@@ -189,11 +190,11 @@ app.post("/api/posts", authMiddleware, adminOnly, async (req, res) => {
         res.json({ success: true, insertedId: result.insertedId });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: "Error al crear el post" });
+        res.status(500).json({ error: "error al crear el post" });
     }
 });
 
 // --- iniciar servidor ---
-app.listen(PORT, () =>
-    console.log(`Servidor Express corriendo en http://localhost:${PORT}`)
+app.listen(PORT_EXPRESS, () =>
+    console.log(`servidor express corriendo en http://localhost:${PORT_EXPRESS}`)
 );

@@ -2,7 +2,7 @@ import Header from "../../componentes/header";
 import Footer from "../../componentes/footer";
 
 async function getPosts() {
-  const res = await fetch("http://localhost:5000/api/posts", {
+  const res = await fetch("http://localhost:5000/api/posts", { //llamada al backend , en api/posts obtenemos todos los posts de la colleccion en la bd
     cache: "no-store",
   });
   if (!res.ok) return [];
@@ -10,8 +10,8 @@ async function getPosts() {
 }
 
 export default async function Blogs() {
-  const posts = await getPosts();
-
+  const posts = await getPosts(); //traer todos los posts del backend antes de renderizar la pagina
+  // https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes
   return (
     <div className="content">
       <Header />

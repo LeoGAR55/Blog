@@ -2,8 +2,8 @@ import Header from "../../../componentes/header";
 import Footer from "../../../componentes/footer";
 
 async function getPost(slug) {
-  const res = await fetch(`http://localhost:5000/api/posts/${slug}`, {
-    cache: "no-store", // no guardar en cache
+  const res = await fetch(`http://localhost:5000/api/posts/${slug}`, { //hacer una solicitud al backend (express)
+    cache: "no-store", // no guardar en cache`para que cada solicitud sea nueva y jale la info actualizada
   });
   if (!res.ok) {
     return null;
@@ -11,7 +11,8 @@ async function getPost(slug) {
   return res.json();
 }
 
-export default async function BlogPost({ params }) {
+// usario hace la peticion de entrar a algo en /blog/algo, entonces next usa blogpost para llamar a getpost con el slug que le pasamos y getpost hace la peticion al backend
+export default async function BlogPost({ params }) { // ruteo dinamico, va a recibir el slug
   const { slug } = params;
 
   const post = await getPost(slug);
