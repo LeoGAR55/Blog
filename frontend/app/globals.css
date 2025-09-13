@@ -1,0 +1,261 @@
+:root {
+  --maincolor: #1a3e72; /*  azul oscuro que contraste con el fondo */
+  --bordercl: #7293b8;  /* borde más visible sobre azul claro */
+  --callouctcolor: #074f5f;
+  --hovercolor: #1a3e72;
+  --darkMaincolor: #1a3e72;
+  --text-color: #1c1c1c; /* texto oscuro */
+  --post-title-color: #1c1c1c;
+  --list-color: #1c1c1c;
+  --code-color: #a83232;
+  --code-background-color: #e0ebff; 
+  --moon-sun-color: #1c1c1c;
+  --moon-sun-background-color: #dbe7ff;
+  --sidebar-bg-color: #e0ebff;
+  --sidebar-img-border-color: #7293b8;
+  --sidebar-socials-color: #305070;
+  --fechas-color: #4a4a4a;
+}
+
+html {
+  color: var(--text-color);
+  font-family: 'Roboto Mono', monospace;
+  font-size: 15px;
+  line-height: 1.6em;
+}
+
+body {
+  display: block;
+  margin: 8px;
+  background-color: #bcd3ff; /* color de fondo */
+  color: var(--text-color);
+  min-height: 100vh;
+}
+
+* {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+::selection {
+  background: var(--maincolor);
+  color: #ffffff;
+  text-shadow: none;
+}
+
+p {
+  /*font-family: 'Fira Sans', sans-serif;*/ /* otra opción de fuente, me gusta mas roboto */
+  line-height: 2.0;
+  font-size: 12pt;
+}
+
+hr {
+  border: 0;
+  border-top: 3px dotted var(--bordercl);
+  margin: 1em 0;
+}
+
+a {
+  border-bottom: 3px solid var(--maincolor);
+  color: inherit;
+  text-decoration: none;
+}
+a:hover {
+  background-color: var(--hovercolor);
+  color: #ffffff;
+}
+
+ul {
+  list-style: none;
+  padding-left: 2ch;
+}
+ul li {
+  text-indent: -2ch;
+}
+ul > li::before {
+  content: '* ';
+  font-weight: bold;
+}
+
+/* imagenes */
+img {
+  border: 3px solid var(--sidebar-img-border-color);
+  max-width: 100%;
+}
+
+figure h4 {
+  font-size: 1rem;
+  margin: 0 0 1em 0;
+}
+figure h4::before {
+  content: '↳ ';
+}
+
+
+/* contenedor */
+.content {
+  margin-bottom: 4em;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 800px;
+  padding: 0 1ch;
+  word-wrap: break-word;
+}
+
+/* Header */
+header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin: 1em 0;
+  line-height: 2.5em;
+}
+
+header .main {
+  font-size: 1.5rem;
+}
+h2, h3, h4, h5, h6 {
+  font-size: 1.2rem;
+  margin-top: 2em;
+  color: var(--post-title-color);
+}
+
+h2::before { color: var(--maincolor); content: '## '; }
+h3::before { color: var(--maincolor); content: '### '; }
+h4::before { color: var(--maincolor); content: '#### '; }
+h5::before { color: var(--maincolor); content: '##### '; }
+h6::before { color: var(--maincolor); content: '###### '; }
+
+
+
+.soc {
+  display: flex;
+  align-items: center;
+  border-bottom: none;
+  color: var(--sidebar-socials-color);
+}
+.soc:hover {
+  color: var(--hovercolor);
+  color: #ffffff;
+}
+
+/* footer */
+footer {
+    margin-top: 40px;
+    padding: 20px 0;
+    display: block;
+    text-align: center;
+}
+
+.social-icons {
+    text-align: center;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5em;
+}
+
+.social-icons .soc {
+    margin: 0 5px;
+}
+
+.social-icons .border {
+    margin: 0 3px;
+}
+
+.copyright-info{
+    text-align: center;
+    margin: 10px 0;
+    font-size: 0.9em;
+}
+
+.homepage-head img {
+  filter: sepia(35%) hue-rotate(200deg) saturate(0.6); /* en hue rotate esta el angulo del tono azul */
+  display: block;
+  margin: auto;
+  padding: 0;
+  border: 0;
+}
+
+@font-face {
+  font-family: 'Roboto Mono';
+  font-style: normal;
+  font-weight: 400;
+  src: url(https://fonts.gstatic.com/s/robotomono/v30/L0xuDF4xlVMF-BfR8bXMIhJHg45mwgGEFl0_3vq_ROW4.woff2) format('woff2');
+}
+
+nav {
+  gap: 15px;
+}
+
+/* Formulario de login */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  margin-top: 1em;
+  max-width: 400px; 
+  margin-left: 0;
+  margin-right: auto;
+}
+
+.login-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+}
+/* etiquetas usario pssw */
+.login-form label { 
+  font-weight: bold;
+  color: var(--text-color);
+  font-size: 1rem;
+}
+
+/* Inputs estilo línea inferior */
+.login-form input {
+  width: 100%; /* llenan el contenedor máximo de 400px */
+  max-width: 250px; /* ancho visual de la línea */
+  border: none;
+  border-bottom: 2px solid var(--sidebar-img-border-color);
+  border-radius: 0;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.95rem;
+  padding: 0.3em 0;
+  background-color: transparent;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.login-form input:focus {
+  outline: none;
+  border-bottom-color: var(--maincolor);
+  box-shadow: 0 2px 0 0 var(--maincolor);
+}
+
+.login-form .login-button {
+  width: 120px;
+  padding: 0.5em 1em;
+  font-size: 1rem;
+  font-weight: bold;
+  color: var(--text-color);
+  background-color: transparent;
+  border: 3px solid var(--maincolor);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  align-self: flex-start;
+}
+
+.login-form .login-button:hover {
+  background-color: var(--maincolor);
+  color: #ffffff;
+}
+
+/* espaciado debajo del formulario para la imagen */
+.login-form + .homepage-head {
+  margin-top: 1.5em;
+}
+
+.tab {
+  margin-left: 2rem; /* salto tab */
+  color: var(--fechas-color);
+}
