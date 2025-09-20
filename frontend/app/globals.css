@@ -90,7 +90,6 @@ figure h4::before {
   content: '↳ ';
 }
 
-
 /* contenedor */
 .content {
   margin-bottom: 4em;
@@ -233,7 +232,7 @@ nav {
 }
 
 .login-form .login-button {
-  width: 120px;
+  width: 140px;
   padding: 0.5em 1em;
   font-size: 1rem;
   font-weight: bold;

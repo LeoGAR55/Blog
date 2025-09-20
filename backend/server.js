@@ -12,11 +12,10 @@ dotenv.config(); // cargar las avriables en el.env
 
 const app = express();
 const PORT_EXPRESS = process.env.PORT_EXPRESS; 
-// eslint-disable-next-line no-unused-vars
 const PORT_NEXT = process.env.PORT_NEXT;
 
 // obtener la colección de posts
-async function getPostsCollection() {
+async function getMongoPosts() {
     const database = await conexionBD();
     return database.collection("posts"); // solo hay 1 hasta el momento
 }
@@ -25,14 +24,15 @@ async function getPostsCollection() {
 // permite solicitudes desde origenes específicos
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  console.log("[DEBUG CORS] Origin recibido:", origin);
+  console.log("DEBUGEANDO EL CORS Origin recibido:", origin);
 
-  const allowedOrigins = ["http://localhost:${PORT_NEXT}", "http://192.168.1.71:${PORT_NEXT}"]; // origenes permitidos
+  const allowedOrigins = [`http://localhost:${PORT_NEXT}`,`http://192.168.1.71:${PORT_NEXT}`,]; // origenes permitidos
+
   if (allowedOrigins.includes(origin)) { 
     res.setHeader("Access-Control-Allow-Origin", origin);
-    console.log("[DEBUG CORS] Origin permitido:", origin); // IMPORTANTE, antes next corria en https y tuve muchos problemas para cebugear, entonces lo puse en http, pero en produccion deberia estar en https
+    console.log("DEBUGEANDO EL CORS Origin permitido:", origin); // IMPORTANTE, antes next corria en https y tuve muchos problemas para cebugear, entonces lo puse en http, pero en produccion deberia estar en https
   } else {
-    console.log("[DEBUG CORS] Origin no permitido:", origin); // incluso genere los certificados :((((((
+    console.log("DEBUGEANDO EL CORS Origin no permitido:", origin); // incluso genere los certificados :((((((
     res.setHeader("Access-Control-Allow-Origin", "null");
   }
 
@@ -42,7 +42,7 @@ app.use((req, res, next) => {
 
   // responde a preflight requests OPTIONS
   if (req.method === "OPTIONS") {
-    console.log("[DEBUG CORS] Preflight OPTIONS recibido");
+    console.log("DEBUGEANDO EL CORS Preflight OPTIONS recibido");
     return res.sendStatus(200);
   }
 
@@ -68,10 +68,10 @@ const users = [
     },
 ];
 
-const SECRET_KEY = process.env.JWT_SECRET || "mi_clave_secreta"; // clave para firmar jwt
+const SECRET_KEY = process.env.JWT_SECRET; // clave para firmar jwt
 
 // --- middleware de autenticación jwt ---
-function authMiddleware(req, res, next) {
+function autenticarJWT(req, res, next) {
     const authHeader = req.headers.authorization;
     if (!authHeader)
         return res.status(401).json({ message: "No autorizado" });
@@ -96,20 +96,20 @@ function soloAdmin(req, res, next) {
 // --- rutas ---
 // login de usuario
 app.post("/login", async (req, res) => {
-    console.log("[DEBUG] Body recibido en /login:", req.body);
+    console.log("DEBUGEANDO Body recibido en /login:", req.body);
     const { username, password } = req.body;
     const user = users.find((u) => u.username === username);
 
     if (!user) {
-        console.log("[DEBUG] Usuario no encontrado:", username);
+        console.log("DEBUGEANDO Usuario no encontrado:", username);
         return res.status(401).json({ message: "Usuario no encontrado" });
     }
 
-    const validPassword = await bcrypt.compare(password, user.passwordHash); // compara hash
-    console.log("[DEBUG] Password valido?", validPassword);
+    const passValida = await bcrypt.compare(password, user.passwordHash); // compara hash
+    console.log("DEBUGEANDO Password valido?", passValida);
 
-    if (!validPassword) {
-        console.log("[DEBUG] Contraseña incorrecta para usuario:", username);
+    if (!passValida) {
+        console.log("DEBUGEANDO Contraseña incorrecta para usuario:", username);
         return res.status(401).json({ message: "Contraseña incorrecta" });
     }
 
@@ -119,14 +119,48 @@ app.post("/login", async (req, res) => {
         { expiresIn: "1h" } // expira en 1 hora
     );
 
-    console.log("[DEBUG] Login exitoso para:", username);
+    console.log("DEBUGEANDO Login exitoso para:", username);
     res.json({ success: true, token, username: user.username, role: user.role });
 });
+
+// registrar un nuevo usuario
+app.post("/registro", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({ message: "Usuario y contraseña son requeridos" });
+    }
+
+    // verificar si ya existe
+    const existingUser = users.find((u) => u.username === username);
+    if (existingUser) {
+      return res.status(409).json({ message: "El usuario ya existe" });
+    }
+
+    // hashear contraseña
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    // agregar nuevo usuario a la lista
+    users.push({
+      username,
+      passwordHash,
+      role: "user", // por defecto todos los nuevos usuarios son 'user'
+    });
+
+    console.log("DEBUGEANDO Nuevo usuario registrado:", username);
+    res.status(201).json({ message: "Usuario registrado correctamente" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error al registrar usuario" });
+  }
+});
+
 
 // obtener todos los posts
 app.get("/api/posts", async (req, res) => {
     try {
-        const collection = await getPostsCollection();
+        const collection = await getMongoPosts();
         const posts = await collection
             .find({}, { projection: { slug: 1, titulo: 1, fecha: 1 } }) // solo campos seleccionados
             .sort({ fecha: -1 }) // orden descendente por fecha (date en la bd)
@@ -143,7 +177,7 @@ app.get("/api/posts", async (req, res) => {
 // obtener un post por slug
 app.get("/api/posts/:slug", async (req, res) => {
     try {
-        const collection = await getPostsCollection();
+        const collection = await getMongoPosts();
         const post = await collection.findOne({ slug: req.params.slug });
 
         console.log("post encontrado:", post);
@@ -157,10 +191,10 @@ app.get("/api/posts/:slug", async (req, res) => {
 });
 
 // crear un nuevo post (solo admin) ESTO AUN NO ESTA IMPLEMENTADO
-app.post("/api/posts", authMiddleware, soloAdmin, async (req, res) => {
+app.post("/api/posts", autenticarJWT, soloAdmin, async (req, res) => {
     try {
         const { slug, titulo, fecha, contenido, tags } = req.body;
-        const collection = await getPostsCollection();
+        const collection = await getMongoPosts();
         const result = await collection.insertOne({
             slug,
             titulo,
