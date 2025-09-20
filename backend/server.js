@@ -33,7 +33,7 @@ app.use((req, res, next) => {
     console.log("DEBUGEANDO EL CORS Origin permitido:", origin); // IMPORTANTE, antes next corria en https y tuve muchos problemas para cebugear, entonces lo puse en http, pero en produccion deberia estar en https
   } else {
     console.log("DEBUGEANDO EL CORS Origin no permitido:", origin); // incluso genere los certificados :((((((
-    res.setHeader("Access-Control-Allow-Origin", "null");
+    return res.status(403).json({ message: "CORS: origen no permitido" });
   }
 
   // metodos y headers permitidos

@@ -56,15 +56,16 @@ const PORT_EXPRESS = process.env.NEXT_PUBLIC_PORT_EXPRESS;
   }
   // inicio de la funcion para manejar el registro
   async function enRegistro(e) {
-    e.preventDefault();
+    e.preventDefault(); //prevenir el refresh de la pag
 
+    //objetos con la info del formulario
     const formData = new FormData(e.target);
     const username = formData.get("newUsername");
     const password = formData.get("newPassword");
 
     console.log("DEBUGEANDO Intentando registrar usuario:", username);
 
-    try {
+    try { // inicio peticion http
       const res = await fetch("http://localhost:5000/registro", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
