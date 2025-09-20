@@ -1,5 +1,5 @@
 import express from "express";
-import { MongoClient } from "mongodb"; // cliente oficial de mongodb 
+import { conexionBD } from "./bd.js";
 import dotenv from "dotenv"; 
 import bcrypt from "bcrypt"; //  hashear y verificar contraseñas 
 import jwt from "jsonwebtoken"; //  generar y verificar tokens jsonwebtoken
@@ -11,32 +11,13 @@ import jwt from "jsonwebtoken"; //  generar y verificar tokens jsonwebtoken
 dotenv.config(); // cargar las avriables en el.env
 
 const app = express();
-const PORT_EXPRESS = process.env.PORT_EXPRESS ||  "algo"; 
-const PORT_NEXT = process.env.PORT_NEXT || "algo";
-
-// CONEXION A MONGOOOOOOOOOOOOOOOOOOOOOOOOOOO
-const MONGO_URL = process.env.MONGO_URL;
-const DATABASE = process.env.DATABASE || "hey";
-const client = new MongoClient(MONGO_URL); // instancia de mongo client
-let db;
-
-// funcion para conectar a la bd de mongo
-async function conexionMongo() {
-    if (db) return db; // retorna db si hay conexion para usarla
-    try {
-        await client.connect();
-        console.log("MongoDB conectado");
-        db = client.db(DATABASE);
-        return db;
-    } catch (err) {
-        console.error("Error conectando a MongoDB:", err);
-        process.exit(1);
-    }
-}
+const PORT_EXPRESS = process.env.PORT_EXPRESS; 
+// eslint-disable-next-line no-unused-vars
+const PORT_NEXT = process.env.PORT_NEXT;
 
 // obtener la colección de posts
 async function getPostsCollection() {
-    const database = await conexionMongo();
+    const database = await conexionBD();
     return database.collection("posts"); // solo hay 1 hasta el momento
 }
 

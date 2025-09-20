@@ -12,8 +12,9 @@ async function getPost(slug) {
 }
 
 // usario hace la peticion de entrar a algo en /blog/algo, entonces next usa blogpost para llamar a getpost con el slug que le pasamos y getpost hace la peticion al backend
-export default async function BlogPost({ params }) { // ruteo dinamico, va a recibir el slug
-  const { slug } = params;
+export default async function BlogPost({ params }) {
+  // ruteo dinamico, va a recibir el slug
+  const { slug } = await params; // segun node params debe ser awaiteado antes de usar sus propiedades porque es una promesa https://nextjs.org/docs/messages/sync-dynamic-apis
 
   const post = await getPost(slug);
 
@@ -26,7 +27,9 @@ export default async function BlogPost({ params }) { // ruteo dinamico, va a rec
       <Header />
       <main className="blog-post">
         <h2>{post.titulo}</h2>
-        <p><i>{new Date(post.fecha).toLocaleDateString()}</i></p>
+        <p>
+          <i>{new Date(post.fecha).toLocaleDateString()}</i>
+        </p>
         <p>{post.contenido}</p>
       </main>
       <Footer />
