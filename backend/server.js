@@ -26,7 +26,11 @@ app.use((req, res, next) => {
   const origin = req.headers.origin;
   console.log("DEBUGEANDO EL CORS Origin recibido:", origin);
 
-  const allowedOrigins = [`http://localhost:${PORT_NEXT}`,`http://192.168.1.71:${PORT_NEXT}`,]; // origenes permitidos
+  const allowedOrigins = [
+    `http://localhost:${PORT_NEXT}`,
+    `http://192.168.1.71:${PORT_NEXT}`,
+    `http://3.81.252.215:${PORT_NEXT}`,
+  ]; // origenes permitidos
 
   if (allowedOrigins.includes(origin)) { 
     res.setHeader("Access-Control-Allow-Origin", origin);
